@@ -8,15 +8,30 @@ body {
   gap: 15px;
 }
 
-.settings {
+.top {
   width: min(80vw, 500px);
   display: flex;
   justify-content: space-around;
 }
 
+.bottom {
+  width: min(80vw, 500px);
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  align-items: center;
+}
+
+.bottom>span:nth-child(even) {
+  justify-self: start;
+}
+
+.bottom>span:nth-child(odd) {
+  justify-self: end;
+}
+
 .btn {
   width: min(calc(80vw /4), calc(500px / 4));
-  aspect-ratio : 3 / 1;
+  aspect-ratio: 3 / 1;
   display: block;
   background-color: inherit;
   border-radius: 5px;
@@ -33,7 +48,7 @@ body {
   display: flex;
   flex-wrap: wrap;
   width: min(80vw, 500px);
-  aspect-ratio : 1 / 1;
+  aspect-ratio: 1 / 1;
 }
 
 .card {
@@ -51,11 +66,11 @@ body {
 }
 
 .card_bomb {
-  background-color:rgb(129, 0, 0);
+  background-color: rgb(129, 0, 0);
 }
 
 .card-1 {
-  color:aqua;
+  color: aqua;
 }
 
 .card-2 {
@@ -63,7 +78,7 @@ body {
 }
 
 .card-3 {
-  color:rgb(83, 83, 255)
+  color: rgb(83, 83, 255)
 }
 
 .card-4 {
@@ -71,19 +86,19 @@ body {
 }
 
 .card-5 {
-  color:rgb(255, 0, 255);
+  color: rgb(255, 0, 255);
 }
 
 .card-6 {
-  color:rgb(255, 64, 0);
+  color: rgb(255, 64, 0);
 }
 
 .card-7 {
-  color:rgb(255, 117, 26);
+  color: rgb(255, 117, 26);
 }
 
 .card-8 {
-  color:rgb(181, 20, 255);
+  color: rgb(181, 20, 255);
 }
 
 .card:hover {
@@ -91,10 +106,14 @@ body {
   background-color: rgb(65, 134, 0);
 }
 
-.card_active{
+.card_active {
   background-color: rgb(40, 83, 0);
 }
 
 .text {
-  font-size: 20px;
+  font-size: clamp(0.8rem, 23px, 3vw);
+}
+
+.ico {
+  font-size: 1.2em;
 }

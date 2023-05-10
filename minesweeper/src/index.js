@@ -9,6 +9,7 @@ let bombsQuantity = 5;
 let fieldSide = 10;
 let level = 'easy';
 let flagsCounter = bombsQuantity;
+let seconds = 0;
 
 function drawField() {
   const size = fieldSide;
@@ -27,31 +28,24 @@ function drawField() {
 }
 
 function drawPage() {
-  const body = document.querySelector('body');
-  const settings = document.createElement('div');
-  settings.setAttribute('class', 'settings');
-  const restartBtn = new Builder('button', { class: 'btn btn_restart material-symbols-outlined' }, settings, 'replay');
-  const soundBtn = new Builder('button', { class: 'btn btn_sound material-symbols-outlined' }, settings, 'volume_off');
-  const lightBtn = new Builder('button', { class: 'btn btn_light material-symbols-outlined' }, settings, 'light_mode');
-  restartBtn.insertElement();
-  soundBtn.insertElement();
-  lightBtn.insertElement();
-  body.append(settings);
   drawField();
-  const clicksDescr = document.createElement('div');
-  const clicksText = new Builder('span', { class: 'text' }, clicksDescr, 'Total clicks: ');
-  const clicks = new Builder('span', { class: 'text counter' }, clicksDescr, '0');
-  clicksText.insertElement();
-  clicks.insertElement();
-  body.append(clicksDescr);
-  const flagsDescr = document.createElement('div');
-  const flagsText = new Builder('span', { class: 'text' }, flagsDescr, '🚩 ');
-  const flags = new Builder('span', { class: 'text flags' }, flagsDescr, `${flagsCounter}`);
-  flagsText.insertElement();
-  flags.insertElement();
-  body.append(flagsDescr);
-  const score = new Builder('div', { class: 'score' }, body);
-  score.insertElement();
+  const body = document.querySelector('body');
+  const top = document.createElement('div');
+  top.setAttribute('class', 'top');
+  new Builder('button', { class: 'btn btn_restart material-symbols-outlined' }, top, 'replay').insert();
+  new Builder('button', { class: 'btn btn_sound material-symbols-outlined' }, top, 'volume_off').insert();
+  new Builder('button', { class: 'btn btn_light material-symbols-outlined' }, top, 'light_mode').insert();
+  body.prepend(top);
+  const bottom = document.createElement('div');
+  bottom.setAttribute('class', 'bottom text');
+  new Builder('span', { class: '' }, bottom, 'Clicks: ').insert();
+  new Builder('span', { class: 'counter' }, bottom, '0').insert();
+  new Builder('span', { class: 'ico material-symbols-outlined' }, bottom, 'hourglass_empty').insert();
+  new Builder('span', { class: '' }, bottom, `${seconds}`).insert();
+  new Builder('span', { class: 'ico material-symbols-outlined' }, bottom, 'flag').insert();
+  new Builder('span', { class: 'flags' }, bottom, `${flagsCounter}`).insert();
+  body.append(bottom);
+  new Builder('div', { class: 'score' }, body).insert();
 }
 
 drawPage();

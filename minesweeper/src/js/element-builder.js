@@ -15,8 +15,8 @@ export default class Builder {
     return element;
   }
 
-  insertElement() {
+  insert() {
     const element = this.createElement();
-    this.parentElement.appendChild(element);
+    this.parentElement.append(element);
   }
 }
