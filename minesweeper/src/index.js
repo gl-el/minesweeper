@@ -2,6 +2,7 @@ import Builder from './js/element-builder.js';
 
 let clickCounter = 0;
 let isStart = true;
+let isPlay = true;
 let fieldArr = [];
 let bombs = [];
 let bombsQuantity = 5;
@@ -26,55 +27,43 @@ function drawField() {
 }
 
 function drawPage() {
-  drawField();
   const body = document.querySelector('body');
-  const description = document.createElement('div');
-  const clicksText = new Builder('span', { class: 'text' }, description, 'Total clicks: ');
+  const settings = document.createElement('div');
+  settings.setAttribute('class', 'settings');
+  const restartBtn = new Builder('button', { class: 'btn btn_restart material-symbols-outlined' }, settings, 'replay');
+  const soundBtn = new Builder('button', { class: 'btn btn_sound material-symbols-outlined' }, settings, 'volume_off');
+  const lightBtn = new Builder('button', { class: 'btn btn_light material-symbols-outlined' }, settings, 'light_mode');
+  restartBtn.insertElement();
+  soundBtn.insertElement();
+  lightBtn.insertElement();
+  body.append(settings);
+  drawField();
+  const clicksDescr = document.createElement('div');
+  const clicksText = new Builder('span', { class: 'text' }, clicksDescr, 'Total clicks: ');
+  const clicks = new Builder('span', { class: 'text counter' }, clicksDescr, '0');
   clicksText.insertElement();
-  const clicks = new Builder('span', { class: 'text counter' }, description, '0');
   clicks.insertElement();
-  body.append(description);
+  body.append(clicksDescr);
+  const flagsDescr = document.createElement('div');
+  const flagsText = new Builder('span', { class: 'text' }, flagsDescr, '🚩 ');
+  const flags = new Builder('span', { class: 'text flags' }, flagsDescr, `${flagsCounter}`);
+  flagsText.insertElement();
+  flags.insertElement();
+  body.append(flagsDescr);
   const score = new Builder('div', { class: 'score' }, body);
   score.insertElement();
 }
 
 drawPage();
 
-async function clearField() {
-  flagsCounter = bombsQuantity;
-  clickCounter = 0;
-  const counter = document.querySelector('.counter');
-  counter.textContent = `${clickCounter}`;
-  const cards = document.querySelectorAll('.card');
-  cards.forEach((card) => {
-    card.removeAttribute('data-empty');
-    card.removeAttribute('data-flag');
-    card.textContent = '';
-    card.classList.remove('card_active');
-    card.classList.remove('card_bomb');
-    card.classList.remove('card-1');
-    card.classList.remove('card-2');
-    card.classList.remove('card-3');
-    card.classList.remove('card-4');
-    card.classList.remove('card-5');
-    card.classList.remove('card-6');
-    card.classList.remove('card-7');
-    card.classList.remove('card-8');
-  });
-}
-
 function getRandom(min, max) {
   return Math.floor(Math.random() * (max - min) + min);
-}
-
-function createCard(size) {
-  return `${getRandom(0, size)},${getRandom(0, size)}`;
 }
 
 function createBombs(quantity, size, point) {
   const bombsArr = [];
   while (bombsArr.length < quantity) {
-    const coord = createCard(size);
+    const coord = `${getRandom(0, size)},${getRandom(0, size)}`;
     if (!bombsArr.includes(coord) && coord !== point) bombsArr.push(coord);
   }
   return bombsArr;
@@ -101,6 +90,33 @@ function createField(size, bombs) {
     }
   }
   return field;
+}
+
+function updateClicks() {
+  const clicks = document.querySelector('.counter');
+  clicks.textContent = `${clickCounter}`;
+}
+
+function updateFlags() {
+  const flags = document.querySelector('.flags');
+  flags.textContent = `${flagsCounter}`;
+}
+
+function restartGame() {
+  flagsCounter = bombs.length;
+  clickCounter = 0;
+  isPlay = true;
+  isStart = true;
+  updateClicks();
+  updateFlags();
+  const cards = document.querySelectorAll('.card');
+  cards.forEach((card) => {
+    card.removeAttribute('data-empty');
+    card.removeAttribute('data-flag');
+    card.textContent = '';
+    card.classList = '';
+    card.setAttribute('class', `card card_${level}`);
+  });
 }
 
 function revealCards(field, x, y, target) {
@@ -134,36 +150,27 @@ function checkWin(all, target) {
   const score = document.querySelector('.score');
   if (bombs.includes(target)) {
     score.textContent = `You loose on ${clickCounter} click!`;
-    isStart = true;
+    isPlay = false;
   }
   if (bombs.length === all ** 2 - empty) {
     score.textContent = `You win in ${clickCounter} clicks!`;
-    isStart = true;
+    isPlay = false;
   }
 }
 
 const field = document.querySelector('.field');
-field.addEventListener('click', async (e) => {
-  if (e.target.dataset.flag === 'true' || e.target.dataset.empty === 'true') return;
-  const counter = document.querySelector('.counter');
+field.addEventListener('click', (e) => {
+  if (e.target.dataset.flag === 'true' || e.target.dataset.empty === 'true' || !isPlay) return;
   const point = e.target.dataset.cord;
   const x = +point.split(',')[0];
   const y = +point.split(',')[1];
   if (isStart) {
-    await clearField();
     bombs = createBombs(bombsQuantity, fieldSide, point);
-    flagsCounter = bombs.length;
     fieldArr = createField(fieldSide, bombs);
-    if (fieldArr[x][y] !== 0) {
-      e.target.textContent = `${fieldArr[x][y]}`;
-      e.target.classList.add(`card-${fieldArr[x][y]}`);
-      e.target.setAttribute('data-empty', 'true');
-    } else {
-      revealCards(fieldArr, x, y, e.target);
-    }
     isStart = false;
     console.log(fieldArr);
-  } else if (e.target.dataset.empty !== 'true') {
+  }
+  if (e.target.dataset.empty !== 'true') {
     if (bombs.includes(point)) {
       showBombs();
     } else if (fieldArr[x][y] !== 0) {
@@ -176,13 +183,13 @@ field.addEventListener('click', async (e) => {
   }
   e.target.classList.add('card_active');
   clickCounter += 1;
-  counter.textContent = clickCounter;
+  updateClicks();
   checkWin(fieldArr.length, point);
 });
 
 field.addEventListener('contextmenu', (e) => {
   e.preventDefault();
-  console.log(!isStart, flagsCounter);
+  if (!isPlay) return;
   if (!isStart && e.target.dataset.empty !== 'true') {
     if (flagsCounter > 0 && e.target.textContent !== '🚩') {
       flagsCounter -= 1;
@@ -194,4 +201,10 @@ field.addEventListener('contextmenu', (e) => {
       e.target.textContent = '';
     }
   }
+  updateFlags();
+});
+
+const restart = document.querySelector('.btn_restart');
+restart.addEventListener('click', (e) => {
+  restartGame();
 });

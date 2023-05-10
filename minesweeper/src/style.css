@@ -8,6 +8,27 @@ body {
   gap: 15px;
 }
 
+.settings {
+  width: min(80vw, 500px);
+  display: flex;
+  justify-content: space-around;
+}
+
+.btn {
+  width: min(calc(80vw /4), calc(500px / 4));
+  aspect-ratio : 3 / 1;
+  display: block;
+  background-color: inherit;
+  border-radius: 5px;
+  border: 2px solid rgb(0, 0, 0);
+  transition: 0.2s all;
+}
+
+.btn:hover {
+  cursor: pointer;
+  background-color: revert;
+}
+
 .field {
   display: flex;
   flex-wrap: wrap;
