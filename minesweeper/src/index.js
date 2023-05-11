@@ -40,8 +40,8 @@ function drawPage() {
   bottom.setAttribute('class', 'bottom text');
   new Builder('span', { class: '' }, bottom, 'Clicks: ').insert();
   new Builder('span', { class: 'counter' }, bottom, '0').insert();
-  new Builder('span', { class: 'ico material-symbols-outlined' }, bottom, 'hourglass_empty').insert();
-  new Builder('span', { class: '' }, bottom, `${seconds}`).insert();
+  new Builder('span', { class: 'ico ico__time material-symbols-outlined' }, bottom, 'hourglass_empty').insert();
+  new Builder('span', { class: 'time-counter' }, bottom, `${seconds} s`).insert();
   new Builder('span', { class: 'ico material-symbols-outlined' }, bottom, 'flag').insert();
   new Builder('span', { class: 'flags' }, bottom, `${flagsCounter}`).insert();
   body.append(bottom);
@@ -96,6 +96,34 @@ function updateFlags() {
   flags.textContent = `${flagsCounter}`;
 }
 
+function startTimer() {
+  const time = document.querySelector('.time-counter');
+  seconds += 1;
+  time.textContent = `${seconds} s`;
+}
+
+function endTimer() {
+  const time = document.querySelector('.time-counter');
+  seconds = 0;
+  time.textContent = `${seconds} s`;
+}
+
+let intervalID;
+function timer(command) {
+  const clocks = document.querySelector('.ico__time');
+  if (command === 'start') {
+    intervalID = setInterval(startTimer, 1000);
+    clocks.classList.add('ico__time_active');
+  } else if (command === 'stop') {
+    clearInterval(intervalID);
+    clocks.classList.remove('ico__time_active');
+  } else if (command === 'restart') {
+    clearInterval(intervalID);
+    clocks.classList.remove('ico__time_active');
+    endTimer();
+  }
+}
+
 function restartGame() {
   flagsCounter = bombs.length;
   clickCounter = 0;
@@ -103,6 +131,7 @@ function restartGame() {
   isStart = true;
   updateClicks();
   updateFlags();
+  timer('restart');
   const cards = document.querySelectorAll('.card');
   cards.forEach((card) => {
     card.removeAttribute('data-empty');
@@ -145,10 +174,12 @@ function checkWin(all, target) {
   if (bombs.includes(target)) {
     score.textContent = `You loose on ${clickCounter} click!`;
     isPlay = false;
+    timer('stop');
   }
   if (bombs.length === all ** 2 - empty) {
     score.textContent = `You win in ${clickCounter} clicks!`;
     isPlay = false;
+    timer('stop');
   }
 }
 
@@ -162,6 +193,7 @@ field.addEventListener('click', (e) => {
     bombs = createBombs(bombsQuantity, fieldSide, point);
     fieldArr = createField(fieldSide, bombs);
     isStart = false;
+    timer('start');
     console.log(fieldArr);
   }
   if (e.target.dataset.empty !== 'true') {
