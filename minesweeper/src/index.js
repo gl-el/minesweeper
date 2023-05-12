@@ -5,37 +5,76 @@ let isStart = true;
 let isPlay = true;
 let fieldArr = [];
 let bombs = [];
-let bombsQuantity = 5;
+let bombsQty = 10;
 let fieldSide = 10;
 let level = 'easy';
-let flagsCounter = bombsQuantity;
+let flagsCounter = bombsQty;
 let seconds = 0;
 
 function drawField() {
   const size = fieldSide;
-  const body = document.querySelector('body');
-  const field = document.createElement('div');
-  field.setAttribute('class', 'field');
+  const field = [];
   for (let i = 0; i < size; i += 1) {
     for (let j = 0; j < size; j += 1) {
       const card = document.createElement('div');
       card.setAttribute('class', `card card_${level}`);
       card.setAttribute('data-cord', `${i},${j}`);
-      field.append(card);
+      field.push(card);
     }
   }
-  body.append(field);
+  return field;
 }
 
 function drawPage() {
-  drawField();
   const body = document.querySelector('body');
+  const field = document.createElement('div');
+  field.setAttribute('class', 'field');
+  field.replaceChildren(...drawField());
+  body.append(field);
   const top = document.createElement('div');
   top.setAttribute('class', 'top');
   new Builder('button', { class: 'btn btn_restart material-symbols-outlined' }, top, 'replay').insert();
   new Builder('button', { class: 'btn btn_sound material-symbols-outlined' }, top, 'volume_off').insert();
   new Builder('button', { class: 'btn btn_light material-symbols-outlined' }, top, 'light_mode').insert();
-  body.prepend(top);
+  const settings = document.createElement('div');
+  settings.setAttribute('class', 'game-settings');
+  new Builder('input', {
+    type: 'radio',
+    id: 'easy',
+    class: 'level',
+    name: 'level',
+    value: 'easy',
+    checked: 'true',
+  }, settings).insert();
+  new Builder('label', { for: 'easy' }, settings, '10x10').insert();
+  new Builder('label', { class: 'bombs-qty', for: 'bombsQty' }, settings, `💣: ${bombsQty}`).insert();
+  new Builder('input', {
+    type: 'radio',
+    id: 'medium',
+    class: 'level',
+    name: 'level',
+    value: 'medium',
+  }, settings).insert();
+  new Builder('label', { for: 'medium' }, settings, '15x15').insert();
+  new Builder('input', {
+    type: 'range',
+    id: 'bombsQty',
+    class: 'slider',
+    name: 'bombsQty',
+    min: '1',
+    max: '99',
+    value: '10',
+    step: '1',
+  }, settings).insert();
+  new Builder('input', {
+    type: 'radio',
+    id: 'hard',
+    class: 'level',
+    name: 'level',
+    value: 'hard',
+  }, settings).insert();
+  new Builder('label', { for: 'hard' }, settings, '25x25').insert();
+  body.prepend(top, settings);
   const bottom = document.createElement('div');
   bottom.setAttribute('class', 'bottom text');
   new Builder('span', { class: '' }, bottom, 'Clicks: ').insert();
@@ -190,7 +229,7 @@ field.addEventListener('click', (e) => {
   const x = +point.split(',')[0];
   const y = +point.split(',')[1];
   if (isStart) {
-    bombs = createBombs(bombsQuantity, fieldSide, point);
+    bombs = createBombs(bombsQty, fieldSide, point);
     fieldArr = createField(fieldSide, bombs);
     isStart = false;
     timer('start');
@@ -232,5 +271,41 @@ field.addEventListener('contextmenu', (e) => {
 
 const restart = document.querySelector('.btn_restart');
 restart.addEventListener('click', (e) => {
+  restartGame();
+});
+
+function changeLevel(newLevel) {
+  const fieldUpd = document.querySelector('.field');
+  if (newLevel === 'easy') {
+    level = 'easy';
+    fieldSide = 10;
+  } else if (newLevel === 'medium') {
+    level = 'medium';
+    fieldSide = 15;
+  } else if (newLevel === 'hard') {
+    level = 'hard';
+    fieldSide = 25;
+  }
+  fieldUpd.replaceChildren(...drawField());
+}
+
+const radioBtns = document.querySelectorAll('.level');
+radioBtns.forEach((radio) => {
+  radio.addEventListener('change', (e) => {
+    if (e.target.value !== level) {
+      changeLevel(e.target.value);
+      restartGame();
+    }
+  });
+});
+
+const slider = document.querySelector('.slider');
+slider.addEventListener('input', (e) => {
+  const bombsQtyText = document.querySelector('.bombs-qty');
+  bombsQty = e.target.value;
+  bombsQtyText.textContent = `💣: ${bombsQty}`;
+});
+
+slider.addEventListener('change', () => {
   restartGame();
 });

@@ -6,12 +6,38 @@ body {
   align-items: center;
   justify-content: center;
   gap: 15px;
+  font-size: clamp(1rem, 23px, 3vw);
 }
 
 .top {
   width: min(80vw, 500px);
   display: flex;
   justify-content: space-around;
+}
+
+.game-settings {
+  width: min(90vw, 450px);
+  display: grid;
+  grid-template-columns: 1em min(20vw, 120px) 1fr;
+  column-gap: 6%;
+  gap: 0.5em;
+  justify-content: center;
+  align-items: center;
+}
+
+.level {
+  margin: 0;
+  appearance: none;
+  border-radius: 50%;
+  width: 1em;
+  height: 1em;
+  border: 2px solid #999;
+  transition: 0.2s all linear;
+}
+
+.level:checked {
+  border: 2px solid black;
+  background-color: rgb(114, 236, 0);
 }
 
 .bottom {
@@ -48,13 +74,14 @@ body {
 .field {
   display: flex;
   flex-wrap: wrap;
-  width: min(80vw, 500px);
+  width: min(90vw, 500px);
   aspect-ratio: 1 / 1;
+  
 }
 
 .card {
   background-color: rgb(114, 236, 0);
-  outline: 2px solid rgb(0, 0, 0);
+  outline: 1px solid rgb(0, 0, 0);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -64,6 +91,19 @@ body {
 .card_easy {
   width: 10%;
   height: 10%;
+  font-size: clamp(10px, 3.5vw, 25px);
+}
+
+.card_medium {
+  width: 6.65%;
+  height: 6.65%;
+  font-size: clamp(5px, 3vw, 20px);
+}
+
+.card_hard {
+  width: 4%;
+  height: 4%;
+  font-size: clamp(5px, 2vw, 12px);
 }
 
 .card_bomb {
@@ -109,10 +149,6 @@ body {
 
 .card_active {
   background-color: rgb(40, 83, 0);
-}
-
-.text {
-  font-size: clamp(0.8rem, 23px, 3vw);
 }
 
 .ico {
