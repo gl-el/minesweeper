@@ -211,12 +211,12 @@ function checkWin(all, target) {
   const empty = document.querySelectorAll('[data-empty="true"]').length;
   const score = document.querySelector('.score');
   if (bombs.includes(target)) {
-    score.textContent = `You loose on ${clickCounter} click!`;
+    score.textContent = 'Game over. Try again';
     isPlay = false;
     timer('stop');
   }
   if (bombs.length === all ** 2 - empty) {
-    score.textContent = `You win in ${clickCounter} clicks!`;
+    score.textContent = `Hooray! You found all mines in ${seconds} seconds and ${clickCounter} moves!`;
     isPlay = false;
     timer('stop');
   }
