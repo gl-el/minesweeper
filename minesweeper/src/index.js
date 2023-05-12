@@ -164,7 +164,7 @@ function timer(command) {
 }
 
 function restartGame() {
-  flagsCounter = bombs.length;
+  flagsCounter = bombsQty;
   clickCounter = 0;
   isPlay = true;
   isStart = true;
