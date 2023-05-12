@@ -61,7 +61,7 @@ function drawPage() {
     id: 'bombsQty',
     class: 'slider',
     name: 'bombsQty',
-    min: '1',
+    min: '10',
     max: '99',
     value: '10',
     step: '1',
@@ -303,6 +303,7 @@ const slider = document.querySelector('.slider');
 slider.addEventListener('input', (e) => {
   const bombsQtyText = document.querySelector('.bombs-qty');
   bombsQty = e.target.value;
+  slider.style.backgroundSize = `${((bombsQty - e.target.min) * 100) / (e.target.max - e.target.min)}% 100%`;
   bombsQtyText.textContent = `💣: ${bombsQty}`;
 });
 
