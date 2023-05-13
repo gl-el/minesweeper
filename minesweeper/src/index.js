@@ -11,6 +11,7 @@ let fieldSide = 10;
 let level = 'easy';
 let flagsCounter = bombsQty;
 let seconds = 0;
+let isSound = localStorage.getItem('sound') === null ? 'on' : localStorage.getItem('sound');
 
 function drawField() {
   const size = fieldSide;
@@ -35,7 +36,7 @@ function drawPage() {
   const top = document.createElement('div');
   top.setAttribute('class', 'top');
   new Builder('button', { class: 'btn btn_restart material-symbols-outlined' }, top, 'replay').insert();
-  new Builder('button', { class: 'btn btn_sound material-symbols-outlined' }, top, 'volume_off').insert();
+  new Builder('button', { class: 'btn btn_sound material-symbols-outlined' }, top, `${isSound === 'on' ? 'volume_off' : 'volume_up'}`).insert();
   new Builder('button', { class: 'btn btn_light material-symbols-outlined' }, top, 'light_mode').insert();
   const settings = document.createElement('div');
   settings.setAttribute('class', 'game-settings');
@@ -216,15 +217,23 @@ function showBombs() {
   });
 }
 
+function playSound(sound) {
+  if (isSound === 'on') {
+    new Audio(`./audio/${sound}.wav`).play();
+  }
+}
+
 function checkWin(all, target) {
   const empty = document.querySelectorAll('[data-empty="true"]').length;
   const score = document.querySelector('.score');
   if (bombs.includes(target)) {
+    playSound('loose');
     score.textContent = 'Game over. Try again';
     isPlay = false;
     timer('stop');
   }
   if (bombs.length === all ** 2 - empty) {
+    playSound('win');
     score.textContent = `Hooray! You found all mines in ${seconds} seconds and ${clickCounter} moves!`;
     isPlay = false;
     timer('stop');
@@ -234,6 +243,7 @@ function checkWin(all, target) {
 const field = document.querySelector('.field');
 field.addEventListener('click', (e) => {
   if (e.target.dataset.flag === 'true' || e.target.dataset.empty === 'true' || !isPlay) return;
+  playSound('click');
   const point = e.target.dataset.cord;
   const x = +point.split(',')[0];
   const y = +point.split(',')[1];
@@ -318,4 +328,16 @@ slider.addEventListener('input', (e) => {
 
 slider.addEventListener('change', () => {
   restartGame();
+});
+
+const btnSound = document.querySelector('.btn_sound');
+btnSound.addEventListener('click', () => {
+  if (isSound === 'on') {
+    isSound = 'off';
+    btnSound.textContent = 'volume_up';
+  } else {
+    isSound = 'on';
+    btnSound.textContent = 'volume_off';
+  }
+  localStorage.setItem('sound', `${isSound}`);
 });
