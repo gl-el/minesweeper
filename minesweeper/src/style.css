@@ -1,6 +1,57 @@
 body {
+  --bg-color: #f5f5dc;
+  --text-color: #000;
+  --border-inactive: #999;
+  --border-active: #000;
+  --active: #72ec00;
+  --inactive: #275200;
+  --bomb: #810000;
+  --hover: #418600;
+  --slider-end: #ffa600;
+}
+
+body.dark-mode {
+  --bg-color: #161d27;
+  --text-color: #00cafd;
+  --border-inactive: #999;
+  --border-active: #154da1;
+  --active: #1c77ff;
+  --inactive: #020f86;
+  --bomb: #f10050;
+  --hover: #1450a8;
+  --slider-end: #e100ff;
+}
+
+@media (prefers-color-scheme: dark) {
+  body {
+    --bg-color: #161d27;
+    --text-color: #00cafd;
+    --border-inactive: #999;
+    --border-active: #154da1;
+    --active: #1c77ff;
+    --inactive: #020f86;
+    --bomb: #f10050;
+    --hover: #1450a8;
+    --slider-end: #e100ff;
+  }
+
+  body.light-mode {
+    --bg-color: #f5f5dc;
+    --text-color: #000;
+    --border-inactive: #999;
+    --border-active: #000;
+    --active: #72ec00;
+    --inactive: #275200;
+    --bomb: #810000;
+    --hover: #418600;
+    --slider-end: #ffa600;
+  }
+}
+
+body {
   font-family: Arial, Helvetica, sans-serif;
-  background-color: #f5f5dc;
+  background-color: var(--bg-color);
+  color: var(--text-color);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -31,24 +82,25 @@ body {
   border-radius: 50%;
   width: 1em;
   aspect-ratio: 1 / 1;
-  border: 2px solid #999;
+  border: 2px solid var(--border-inactive);
   transition: 0.2s all linear;
 }
 
 .level:checked {
-  border: 2px solid black;
-  background-color: rgb(114, 236, 0);
+  border: 2px solid var(--border-active);
+  background-color: var(--active);
 }
 
 .slider {
+  appearance: none;
   -webkit-appearance: none;
   width: 100%;
   border-radius: 8px;
   background-color: transparent;
-  background-image: linear-gradient(90deg, rgb(114, 236, 0), rgb(255, 166, 0));
+  background-image: linear-gradient(90deg, var(--active), var(--slider-end));
   background-size: 0% 100%;
   background-repeat: no-repeat;
-  border: 2px solid #999;
+  border: 2px solid var(--border-inactive);
 }
 
 .slider::-webkit-slider-runnable-track {
@@ -66,9 +118,14 @@ body {
   width: 10px;
   border-radius: 5px;
   margin-top: -4px;
-  background-color: rgb(40, 83, 0);
-  border:2px solid rgb(40, 83, 0);
+  background-color: var(--inactive);
+  border: 2px solid var(--inactive);
   cursor: ew-resize;
+  transition: background-color 0.1s;
+}
+
+.slider::-webkit-slider-thumb:hover {
+  background-color: var(--active);
 }
 
 .bombs-qty {
@@ -93,16 +150,18 @@ body {
 
 .btn {
   width: min(calc(80vw /4), calc(500px / 4));
+  color: var(--text-color);
   aspect-ratio: 3 / 1;
   display: block;
   background-color: inherit;
   border-radius: 5px;
-  border: 2px solid rgb(0, 0, 0);
+  border: 2px solid var(--border-inactive);
   transition: 0.2s all;
 }
 
 .btn:hover {
   cursor: pointer;
+  border: 2px solid var(--border-active);
   background-color: revert;
 }
 
@@ -111,12 +170,11 @@ body {
   flex-wrap: wrap;
   width: min(90vw, 500px);
   aspect-ratio: 1 / 1;
-
 }
 
 .card {
-  background-color: rgb(114, 236, 0);
-  outline: 1px solid rgb(0, 0, 0);
+  background-color: var(--active);
+  outline: 1px solid var(--border-active);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -142,48 +200,48 @@ body {
 }
 
 .card_bomb {
-  background-color: rgb(129, 0, 0);
+  background-color: var(--bomb);
 }
 
 .card-1 {
-  color: aqua;
+  color: #04a3ff;
 }
 
 .card-2 {
-  color: red;
+  color: #FFB900;
 }
 
 .card-3 {
-  color: rgb(83, 83, 255)
+  color: #FF6B6B;
 }
 
 .card-4 {
-  color: orange;
+  color: #3ef8f8;
 }
 
 .card-5 {
-  color: rgb(255, 0, 255);
+  color: #FF8C00;
 }
 
 .card-6 {
-  color: rgb(255, 64, 0);
+  color: #fc264a;
 }
 
 .card-7 {
-  color: rgb(255, 117, 26);
+  color: #3cff15;
 }
 
 .card-8 {
-  color: rgb(181, 20, 255);
+  color: #FF1493;
 }
 
 .card:hover {
   cursor: pointer;
-  background-color: rgb(65, 134, 0);
+  background-color: var(--hover);
 }
 
-.card_active {
-  background-color: rgb(40, 83, 0);
+.card_opened {
+  background-color: var(--inactive);
 }
 
 .ico {

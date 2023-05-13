@@ -1,4 +1,5 @@
 import Builder from './js/element-builder.js';
+import themeSwitcher from './js/theme-switcher.js';
 
 let clickCounter = 0;
 let isStart = true;
@@ -88,6 +89,7 @@ function drawPage() {
 }
 
 drawPage();
+themeSwitcher();
 
 function getRandom(min, max) {
   return Math.floor(Math.random() * (max - min) + min);
