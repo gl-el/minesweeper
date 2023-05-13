@@ -184,7 +184,7 @@ function restartGame() {
 function revealCards(field, x, y, target) {
   if (field[x][y] === 0 && target.dataset.empty !== 'true') {
     target.setAttribute('data-empty', 'true');
-    target.classList.add('card_active');
+    target.classList.add('card_opened');
     revealCards(field, Math.max(0, x - 1), Math.max(0, y - 1), document.querySelector(`[data-cord="${Math.max(0, x - 1)},${Math.max(0, y - 1)}"]`));
     revealCards(field, Math.max(0, x - 1), Math.max(0, y), document.querySelector(`[data-cord="${Math.max(0, x - 1)},${Math.max(0, y)}"]`));
     revealCards(field, Math.max(0, x - 1), Math.min(field.length - 1, y + 1), document.querySelector(`[data-cord="${Math.max(0, x - 1)},${Math.min(field.length - 1, y + 1)}"]`));
@@ -193,6 +193,13 @@ function revealCards(field, x, y, target) {
     revealCards(field, Math.min(field.length - 1, x + 1), Math.max(0, y - 1), document.querySelector(`[data-cord="${Math.min(field.length - 1, x + 1)},${Math.max(0, y - 1)}"]`));
     revealCards(field, Math.min(field.length - 1, x + 1), Math.max(0, y), document.querySelector(`[data-cord="${Math.min(field.length - 1, x + 1)},${Math.max(0, y)}"]`));
     revealCards(field, Math.min(field.length - 1, x + 1), Math.min(field.length - 1, y + 1), document.querySelector(`[data-cord="${Math.min(field.length - 1, x + 1)},${Math.min(field.length - 1, y + 1)}"]`));
+  } else if (field[x][y] !== 'B') {
+    target.setAttribute('data-empty', 'true');
+    target.classList.add('card_opened');
+    if (field[x][y] !== 0) {
+      target.textContent = field[x][y];
+      target.classList.add(`card-${field[x][y]}`);
+    }
   }
 }
 
@@ -202,7 +209,7 @@ function showBombs() {
     const y = bomb.split(',')[1];
     const bombCard = document.querySelector(`[data-cord="${x},${y}"]`);
     bombCard.textContent = '💣';
-    bombCard.classList.remove('card_active');
+    bombCard.classList.remove('card_opened');
     bombCard.classList.add('card_bomb');
   });
 }
@@ -246,7 +253,7 @@ field.addEventListener('click', (e) => {
       revealCards(fieldArr, x, y, e.target);
     }
   }
-  e.target.classList.add('card_active');
+  e.target.classList.add('card_opened');
   clickCounter += 1;
   updateClicks();
   checkWin(fieldArr.length, point);
