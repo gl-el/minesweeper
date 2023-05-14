@@ -153,11 +153,11 @@ function playSound(sound) {
 function checkWin(all, target) {
   const empty = document.querySelectorAll('[data-empty="true"]').length;
   if (bombs.includes(target)) {
-    playSound('loose');
+    playSound('lose');
     isPlay = false;
     timer('stop');
-    results.addItem('loose', fieldArr.length, bombsQty, seconds, clickCounter);
-    modal.show('You loose!', 'Game over. Try again');
+    results.addItem('lose', fieldArr.length, bombsQty, seconds, clickCounter);
+    modal.show('You lose!', 'Game over. Try again');
   }
   if (bombs.length === all ** 2 - empty) {
     playSound('win');

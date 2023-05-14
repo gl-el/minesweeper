@@ -4,7 +4,6 @@ export default class Results {
   }
 
   addItem(state, size, qty, time, clicks) {
-    console.log(this.results);
     this.results.push([state, size, qty, time, clicks]);
     if (this.results.length > 10) {
       this.results.shift();

@@ -313,7 +313,7 @@ body {
   z-index: 2;
 }
 
-.list__item_loose::marker {
+.list__item_lose::marker {
   content: '❌';
 }
 
