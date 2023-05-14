@@ -67,7 +67,7 @@ body {
 }
 
 .game-settings {
-  width: min(90vw, 450px);
+  width: min(75vw, 450px);
   display: grid;
   grid-template-columns: 1em min(20vw, 120px) 1fr;
   column-gap: 6%;
@@ -83,7 +83,7 @@ body {
   width: 1em;
   aspect-ratio: 1 / 1;
   border: 2px solid var(--border-inactive);
-  transition: 0.2s all linear;
+  transition: 0.2s border linear;
 }
 
 .level:checked {
@@ -101,6 +101,17 @@ body {
   background-size: 0% 100%;
   background-repeat: no-repeat;
   border: 2px solid var(--border-inactive);
+  transition: 0.2s border linear;
+}
+
+.slider:hover,
+.level:hover {
+  border: 2px solid var(--border-active);
+  cursor: pointer;
+}
+
+.radio__label:hover {
+  cursor: pointer;
 }
 
 .slider::-webkit-slider-runnable-track {
@@ -149,7 +160,7 @@ body {
 }
 
 .btn {
-  width: min(calc(80vw /4), calc(500px / 4));
+  width: min(calc(80vw /5), calc(500px / 5));
   color: var(--text-color);
   aspect-ratio: 3 / 1;
   display: block;
@@ -263,4 +274,49 @@ body {
   to {
     transform: rotate(360deg);
   }
+}
+
+.modal {
+  visibility: hidden;
+  opacity: 0;
+  color: var(--active);
+  background-color: var(--inactive);
+  outline: 1px solid var(--active);
+  width: min(90vw, 700px);
+  border-radius: 5px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: absolute;
+  z-index: 2;
+  transition: opacity 0.3s;
+}
+
+.modal_active {
+  visibility: visible;
+  opacity: 1;
+}
+
+.modal_active ~ .modal__before {
+  position: fixed;
+  top: 0;
+  left: 0;
+  background-color: var(--bg-color);
+  width: 100vw;
+  height: 100vh;
+  opacity: 0.8;
+}
+
+.btn__modal {
+  position: relative;
+  top: 50px;
+  z-index: 2;
+}
+
+.list__item_loose::marker {
+  content: '❌';
+}
+
+.list__item_win::marker {
+  content: '✅';
 }

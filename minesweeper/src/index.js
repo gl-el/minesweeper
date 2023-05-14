@@ -1,5 +1,8 @@
-import Builder from './js/element-builder.js';
 import themeSwitcher from './js/theme-switcher.js';
+import Results from './js/results.js';
+import modal from './js/modal.js';
+import drawField from './js/draw-field.js';
+import drawPage from './js/draw-page.js';
 
 let clickCounter = 0;
 let isStart = true;
@@ -12,85 +15,11 @@ let level = 'easy';
 let flagsCounter = bombsQty;
 let seconds = 0;
 let isSound = localStorage.getItem('sound') === null ? 'on' : localStorage.getItem('sound');
+const results = new Results();
 
-function drawField() {
-  const size = fieldSide;
-  const field = [];
-  for (let i = 0; i < size; i += 1) {
-    for (let j = 0; j < size; j += 1) {
-      const card = document.createElement('div');
-      card.setAttribute('class', `card card_${level}`);
-      card.setAttribute('data-cord', `${i},${j}`);
-      field.push(card);
-    }
-  }
-  return field;
-}
-
-function drawPage() {
-  const body = document.querySelector('body');
-  const field = document.createElement('div');
-  field.setAttribute('class', 'field');
-  field.replaceChildren(...drawField());
-  body.append(field);
-  const top = document.createElement('div');
-  top.setAttribute('class', 'top');
-  new Builder('button', { class: 'btn btn_restart material-symbols-outlined' }, top, 'replay').insert();
-  new Builder('button', { class: 'btn btn_sound material-symbols-outlined' }, top, `${isSound === 'on' ? 'volume_off' : 'volume_up'}`).insert();
-  new Builder('button', { class: 'btn btn_light material-symbols-outlined' }, top, 'light_mode').insert();
-  const settings = document.createElement('div');
-  settings.setAttribute('class', 'game-settings');
-  new Builder('input', {
-    type: 'radio',
-    id: 'easy',
-    class: 'level',
-    name: 'level',
-    value: 'easy',
-    checked: 'true',
-  }, settings).insert();
-  new Builder('label', { for: 'easy' }, settings, '10x10').insert();
-  new Builder('label', { class: 'bombs-qty', for: 'bombsQty' }, settings, `💣: ${bombsQty}`).insert();
-  new Builder('input', {
-    type: 'radio',
-    id: 'medium',
-    class: 'level',
-    name: 'level',
-    value: 'medium',
-  }, settings).insert();
-  new Builder('label', { for: 'medium' }, settings, '15x15').insert();
-  new Builder('input', {
-    type: 'range',
-    id: 'bombsQty',
-    class: 'slider',
-    name: 'bombsQty',
-    min: '10',
-    max: '99',
-    value: '10',
-    step: '1',
-  }, settings).insert();
-  new Builder('input', {
-    type: 'radio',
-    id: 'hard',
-    class: 'level',
-    name: 'level',
-    value: 'hard',
-  }, settings).insert();
-  new Builder('label', { for: 'hard' }, settings, '25x25').insert();
-  body.prepend(top, settings);
-  const bottom = document.createElement('div');
-  bottom.setAttribute('class', 'bottom text');
-  new Builder('span', { class: '' }, bottom, 'Clicks: ').insert();
-  new Builder('span', { class: 'counter' }, bottom, '0').insert();
-  new Builder('span', { class: 'ico ico__time material-symbols-outlined' }, bottom, 'hourglass_empty').insert();
-  new Builder('span', { class: 'time-counter' }, bottom, `${seconds} s`).insert();
-  new Builder('span', { class: 'ico material-symbols-outlined' }, bottom, 'flag').insert();
-  new Builder('span', { class: 'flags' }, bottom, `${flagsCounter}`).insert();
-  body.append(bottom);
-  new Builder('div', { class: 'score' }, body).insert();
-}
-
-drawPage();
+drawPage(fieldSide, level, isSound, bombsQty, flagsCounter, seconds);
 themeSwitcher();
+modal.buildModal();
 
 function getRandom(min, max) {
   return Math.floor(Math.random() * (max - min) + min);
@@ -105,11 +34,9 @@ function createBombs(quantity, size, point) {
   return bombsArr;
 }
 
-function createField(size, bombs) {
+function createField(size, bombsArr) {
   const field = Array(size).fill().map(() => Array(size).fill(0));
-  const score = document.querySelector('.score');
-  score.textContent = '';
-  bombs.forEach((item) => {
+  bombsArr.forEach((item) => {
     const x = item.split(',')[0];
     const y = item.split(',')[1];
     field[x][y] = 'B';
@@ -225,18 +152,19 @@ function playSound(sound) {
 
 function checkWin(all, target) {
   const empty = document.querySelectorAll('[data-empty="true"]').length;
-  const score = document.querySelector('.score');
   if (bombs.includes(target)) {
     playSound('loose');
-    score.textContent = 'Game over. Try again';
     isPlay = false;
     timer('stop');
+    results.addItem('loose', fieldArr.length, bombsQty, seconds, clickCounter);
+    modal.show('You loose!', 'Game over. Try again');
   }
   if (bombs.length === all ** 2 - empty) {
     playSound('win');
-    score.textContent = `Hooray! You found all mines in ${seconds} seconds and ${clickCounter} moves!`;
     isPlay = false;
     timer('stop');
+    results.addItem('win', fieldArr.length, bombsQty, seconds, clickCounter);
+    modal.show('You win!', `Hooray! You found all mines in ${seconds} seconds and ${clickCounter} moves!`);
   }
 }
 
@@ -289,7 +217,7 @@ field.addEventListener('contextmenu', (e) => {
 });
 
 const restart = document.querySelector('.btn_restart');
-restart.addEventListener('click', (e) => {
+restart.addEventListener('click', () => {
   restartGame();
 });
 
@@ -305,7 +233,7 @@ function changeLevel(newLevel) {
     level = 'hard';
     fieldSide = 25;
   }
-  fieldUpd.replaceChildren(...drawField());
+  fieldUpd.replaceChildren(...drawField(fieldSide, level));
 }
 
 const radioBtns = document.querySelectorAll('.level');
@@ -340,4 +268,20 @@ btnSound.addEventListener('click', () => {
     btnSound.textContent = 'volume_off';
   }
   localStorage.setItem('sound', `${isSound}`);
+});
+
+const btnRes = document.querySelector('.btn_results');
+btnRes.addEventListener('click', () => {
+  modal.show('Last results:', results.getResults());
+});
+
+const btnModalClose = document.querySelector('.btn__modal');
+btnModalClose.addEventListener('click', () => {
+  modal.close();
+});
+
+window.addEventListener('click', (e) => {
+  if (e.target === document.querySelector('.modal__before')) {
+    modal.close();
+  }
 });
