@@ -1,7 +1,7 @@
 import Builder from './element-builder';
 import drawField from './draw-field';
 
-export default function drawPage(size, lvl, sound, bombs, flags, secs) {
+export default function drawPage(size, lvl, sound, bombs, flags, secs, bombsCounter) {
   const body = document.querySelector('body');
   const field = document.createElement('div');
   field.setAttribute('class', 'field');
@@ -24,7 +24,7 @@ export default function drawPage(size, lvl, sound, bombs, flags, secs) {
     checked: 'true',
   }, settings).insert();
   new Builder('label', { for: 'easy', class: 'radio__label' }, settings, '10x10').insert();
-  new Builder('label', { class: 'bombs-qty', for: 'bombsQty' }, settings, `💣: ${bombs}`).insert();
+  new Builder('label', { class: 'bombs-qty', for: 'bombsQty' }, settings, `Bombs quantity: ${bombs}`).insert();
   new Builder('input', {
     type: 'radio',
     id: 'medium',
@@ -53,12 +53,14 @@ export default function drawPage(size, lvl, sound, bombs, flags, secs) {
   new Builder('label', { for: 'hard', class: 'radio__label' }, settings, '25x25').insert();
   body.prepend(top, settings);
   const bottom = document.createElement('div');
-  bottom.setAttribute('class', 'bottom text');
-  new Builder('span', { class: '' }, bottom, 'Clicks: ').insert();
+  bottom.setAttribute('class', 'bottom');
+  new Builder('span', { class: 'ico material-symbols-outlined' }, bottom, 'left_click').insert();
   new Builder('span', { class: 'counter' }, bottom, '0').insert();
   new Builder('span', { class: 'ico ico__time material-symbols-outlined' }, bottom, 'hourglass_empty').insert();
   new Builder('span', { class: 'time-counter' }, bottom, `${secs} s`).insert();
   new Builder('span', { class: 'ico material-symbols-outlined' }, bottom, 'flag').insert();
   new Builder('span', { class: 'flags' }, bottom, `${flags}`).insert();
+  new Builder('span', { class: 'ico material-symbols-outlined' }, bottom, 'explosion').insert();
+  new Builder('span', { class: 'bombs-counter' }, bottom, `${bombsCounter}`).insert();
   body.append(bottom);
 }

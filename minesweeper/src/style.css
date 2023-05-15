@@ -146,7 +146,7 @@ body {
 .bottom {
   width: min(80vw, 500px);
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
+  grid-template-columns: repeat(8, 1fr);
   align-items: center;
   gap: 1%;
 }
@@ -212,6 +212,13 @@ body {
 
 .card_bomb {
   background-color: var(--bomb);
+  background-image: url("./svg/bomb-svgrepo-com.svg");
+  background-size: contain;
+}
+
+.card_flag {
+  background-image: url("./svg/flag-svgrepo-com.svg");
+  background-size: contain;
 }
 
 .card-1 {
@@ -297,7 +304,7 @@ body {
   opacity: 1;
 }
 
-.modal_active ~ .modal__before {
+.modal_active~.modal__before {
   position: fixed;
   top: 0;
   left: 0;

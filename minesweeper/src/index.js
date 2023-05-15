@@ -19,11 +19,12 @@ let bombsQty = 10;
 let fieldSide = 10;
 let level = 'easy';
 let flagsCounter = 0;
+let bombsCounter = bombsQty;
 let seconds = 0;
 let isSound = localStorage.getItem('sound') === null ? 'on' : localStorage.getItem('sound');
 const results = new Results();
 
-drawPage(fieldSide, level, isSound, bombsQty, flagsCounter, seconds);
+drawPage(fieldSide, level, isSound, bombsQty, flagsCounter, seconds, bombsCounter);
 themeSwitcher();
 modal.buildModal();
 
@@ -68,7 +69,9 @@ function updateClicks() {
 
 function updateFlags() {
   const flags = document.querySelector('.flags');
+  const bombsText = document.querySelector('.bombs-counter');
   flags.textContent = `${flagsCounter}`;
+  bombsText.textContent = `${bombsCounter}`;
 }
 
 function startTimer() {
@@ -101,6 +104,7 @@ function timer(command) {
 
 function restartGame() {
   flagsCounter = 0;
+  bombsCounter = bombsQty;
   clickCounter = 0;
   isPlay = true;
   isStart = true;
@@ -119,7 +123,7 @@ function restartGame() {
 
 function revealCards(field, x, y, target) {
   const text = target;
-  if (field[x][y] === 0 && target.dataset.empty !== 'true') {
+  if (field[x][y] === 0 && target.dataset.empty !== 'true' && target.dataset.flag !== 'true') {
     target.setAttribute('data-empty', 'true');
     target.classList.add('card_opened');
     revealCards(field, Math.max(0, x - 1), Math.max(0, y - 1), document.querySelector(`[data-cord="${Math.max(0, x - 1)},${Math.max(0, y - 1)}"]`));
@@ -130,7 +134,7 @@ function revealCards(field, x, y, target) {
     revealCards(field, Math.min(field.length - 1, x + 1), Math.max(0, y - 1), document.querySelector(`[data-cord="${Math.min(field.length - 1, x + 1)},${Math.max(0, y - 1)}"]`));
     revealCards(field, Math.min(field.length - 1, x + 1), Math.max(0, y), document.querySelector(`[data-cord="${Math.min(field.length - 1, x + 1)},${Math.max(0, y)}"]`));
     revealCards(field, Math.min(field.length - 1, x + 1), Math.min(field.length - 1, y + 1), document.querySelector(`[data-cord="${Math.min(field.length - 1, x + 1)},${Math.min(field.length - 1, y + 1)}"]`));
-  } else if (field[x][y] !== 'B') {
+  } else if (field[x][y] !== 'B' && target.dataset.flag !== 'true') {
     target.setAttribute('data-empty', 'true');
     target.classList.add('card_opened');
     if (field[x][y] !== 0) {
@@ -145,7 +149,6 @@ function showBombs() {
     const x = bomb.split(',')[0];
     const y = bomb.split(',')[1];
     const bombCard = document.querySelector(`[data-cord="${x},${y}"]`);
-    bombCard.textContent = '💣';
     bombCard.classList.remove('card_opened');
     bombCard.classList.add('card_bomb');
   });
@@ -163,7 +166,6 @@ function checkWin(all, target) {
     playSound(lose);
     isPlay = false;
     timer('stop');
-    results.addItem('lose', fieldArr.length, bombsQty, seconds, clickCounter);
     modal.show('You lose!', 'Game over. Try again');
   }
   if (bombs.length === all ** 2 - empty) {
@@ -212,13 +214,15 @@ field.addEventListener('contextmenu', (e) => {
     if (flagsCounter < bombsQty && e.target.dataset.flag !== 'true') {
       playSound(flag);
       flagsCounter += 1;
-      e.target.textContent = '🚩';
+      bombsCounter -= 1;
+      e.target.classList.add('card_flag');
       e.target.setAttribute('data-flag', 'true');
     } else if (e.target.dataset.flag === 'true') {
       playSound(flag);
       flagsCounter -= 1;
+      bombsCounter += 1;
       e.target.removeAttribute('data-flag');
-      e.target.textContent = '';
+      e.target.classList.remove('card_flag');
     }
   }
   updateFlags();
@@ -259,7 +263,7 @@ slider.addEventListener('input', (e) => {
   const bombsQtyText = document.querySelector('.bombs-qty');
   bombsQty = e.target.value;
   slider.style.backgroundSize = `${((bombsQty - e.target.min) * 100) / (e.target.max - e.target.min)}% 100%`;
-  bombsQtyText.textContent = `💣: ${bombsQty}`;
+  bombsQtyText.textContent = `Bombs quantity: ${bombsQty}`;
 });
 
 slider.addEventListener('change', () => {
