@@ -1,8 +1,13 @@
-import themeSwitcher from './js/theme-switcher.js';
-import Results from './js/results.js';
-import modal from './js/modal.js';
-import drawField from './js/draw-field.js';
-import drawPage from './js/draw-page.js';
+import './index.html';
+import './style.css';
+import click from './audio/click.wav';
+import lose from './audio/lose.wav';
+import win from './audio/win.wav';
+import themeSwitcher from './js/theme-switcher';
+import Results from './js/results';
+import modal from './js/modal';
+import drawField from './js/draw-field';
+import drawPage from './js/draw-page';
 
 let clickCounter = 0;
 let isStart = true;
@@ -102,16 +107,17 @@ function restartGame() {
   updateFlags();
   timer('restart');
   const cards = document.querySelectorAll('.card');
-  cards.forEach((card) => {
-    card.removeAttribute('data-empty');
-    card.removeAttribute('data-flag');
-    card.textContent = '';
-    card.classList = '';
-    card.setAttribute('class', `card card_${level}`);
-  });
+  for (let i = 0; i < cards.length; i += 1) {
+    cards[i].removeAttribute('data-empty');
+    cards[i].removeAttribute('data-flag');
+    cards[i].textContent = '';
+    cards[i].classList = '';
+    cards[i].setAttribute('class', `card card_${level}`);
+  }
 }
 
 function revealCards(field, x, y, target) {
+  const text = target;
   if (field[x][y] === 0 && target.dataset.empty !== 'true') {
     target.setAttribute('data-empty', 'true');
     target.classList.add('card_opened');
@@ -127,7 +133,7 @@ function revealCards(field, x, y, target) {
     target.setAttribute('data-empty', 'true');
     target.classList.add('card_opened');
     if (field[x][y] !== 0) {
-      target.textContent = field[x][y];
+      text.textContent = field[x][y];
       target.classList.add(`card-${field[x][y]}`);
     }
   }
@@ -146,21 +152,21 @@ function showBombs() {
 
 function playSound(sound) {
   if (isSound === 'on') {
-    new Audio(`./audio/${sound}.wav`).play();
+    new Audio(sound).play();
   }
 }
 
 function checkWin(all, target) {
   const empty = document.querySelectorAll('[data-empty="true"]').length;
   if (bombs.includes(target)) {
-    playSound('lose');
+    playSound(lose);
     isPlay = false;
     timer('stop');
     results.addItem('lose', fieldArr.length, bombsQty, seconds, clickCounter);
     modal.show('You lose!', 'Game over. Try again');
   }
   if (bombs.length === all ** 2 - empty) {
-    playSound('win');
+    playSound(win);
     isPlay = false;
     timer('stop');
     results.addItem('win', fieldArr.length, bombsQty, seconds, clickCounter);
@@ -171,7 +177,7 @@ function checkWin(all, target) {
 const field = document.querySelector('.field');
 field.addEventListener('click', (e) => {
   if (e.target.dataset.flag === 'true' || e.target.dataset.empty === 'true' || !isPlay) return;
-  playSound('click');
+  playSound(click);
   const point = e.target.dataset.cord;
   const x = +point.split(',')[0];
   const y = +point.split(',')[1];
@@ -180,7 +186,6 @@ field.addEventListener('click', (e) => {
     fieldArr = createField(fieldSide, bombs);
     isStart = false;
     timer('start');
-    console.log(fieldArr);
   }
   if (e.target.dataset.empty !== 'true') {
     if (bombs.includes(point)) {

@@ -1,5 +1,5 @@
-import Builder from './element-builder.js';
-import drawField from './draw-field.js';
+import Builder from './element-builder';
+import drawField from './draw-field';
 
 export default function drawPage(size, lvl, sound, bombs, flags, secs) {
   const body = document.querySelector('body');

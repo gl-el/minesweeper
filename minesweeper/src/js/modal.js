@@ -1,4 +1,4 @@
-import Builder from './element-builder.js';
+import Builder from './element-builder';
 
 const modal = {
 
