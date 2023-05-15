@@ -3,6 +3,7 @@ import './style.css';
 import click from './audio/click.wav';
 import lose from './audio/lose.wav';
 import win from './audio/win.wav';
+import flag from './audio/flag.wav';
 import themeSwitcher from './js/theme-switcher';
 import Results from './js/results';
 import modal from './js/modal';
@@ -17,7 +18,7 @@ let bombs = [];
 let bombsQty = 10;
 let fieldSide = 10;
 let level = 'easy';
-let flagsCounter = bombsQty;
+let flagsCounter = 0;
 let seconds = 0;
 let isSound = localStorage.getItem('sound') === null ? 'on' : localStorage.getItem('sound');
 const results = new Results();
@@ -99,7 +100,7 @@ function timer(command) {
 }
 
 function restartGame() {
-  flagsCounter = bombsQty;
+  flagsCounter = 0;
   clickCounter = 0;
   isPlay = true;
   isStart = true;
@@ -208,12 +209,14 @@ field.addEventListener('contextmenu', (e) => {
   e.preventDefault();
   if (!isPlay) return;
   if (!isStart && e.target.dataset.empty !== 'true') {
-    if (flagsCounter > 0 && e.target.textContent !== '🚩') {
-      flagsCounter -= 1;
+    if (flagsCounter < bombsQty && e.target.dataset.flag !== 'true') {
+      playSound(flag);
+      flagsCounter += 1;
       e.target.textContent = '🚩';
       e.target.setAttribute('data-flag', 'true');
-    } else {
-      flagsCounter += 1;
+    } else if (e.target.dataset.flag === 'true') {
+      playSound(flag);
+      flagsCounter -= 1;
       e.target.removeAttribute('data-flag');
       e.target.textContent = '';
     }
