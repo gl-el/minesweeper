@@ -9,24 +9,29 @@ import Results from './js/results';
 import modal from './js/modal';
 import drawField from './js/draw-field';
 import drawPage from './js/draw-page';
+import loadGame from './js/load-game';
+import clear from './js/clear-ls';
 
-let clickCounter = 0;
-let isStart = true;
+let clickCounter = localStorage.getItem('clickCounter') === null ? 0 : +localStorage.getItem('clickCounter');
+let isStart = localStorage.getItem('isSave') === null;
+const isSave = localStorage.getItem('isSave') === 'true';
 let isPlay = true;
-let fieldArr = [];
-let bombs = [];
-let bombsQty = 10;
-let fieldSide = 10;
-let level = 'easy';
-let flagsCounter = 0;
-let bombsCounter = bombsQty;
-let seconds = 0;
+let isTimer = false;
+let fieldArr = localStorage.getItem('fieldArr') === null ? [] : JSON.parse(localStorage.getItem('fieldArr'));
+let bombs = localStorage.getItem('bombs') === null ? [] : JSON.parse(localStorage.getItem('bombs'));
+let bombsQty = !isSave ? 10 : bombs.length;
+let fieldSide = localStorage.getItem('fieldSide') === null || !isSave ? 10 : +localStorage.getItem('fieldSide');
+let level = localStorage.getItem('level') === null || !isSave ? 'easy' : localStorage.getItem('level');
+let flagsCounter = localStorage.getItem('flagsCounter') === null || !isSave ? 0 : +localStorage.getItem('flagsCounter');
+let bombsCounter = localStorage.getItem('bombsCounter') === null || !isSave ? bombsQty : +localStorage.getItem('bombsCounter');
+let seconds = localStorage.getItem('seconds') === null || !isSave ? 0 : +localStorage.getItem('seconds');
 let isSound = localStorage.getItem('sound') === null ? 'on' : localStorage.getItem('sound');
 const results = new Results();
 
-drawPage(fieldSide, level, isSound, bombsQty, flagsCounter, seconds, bombsCounter);
+drawPage(fieldSide, level, isSound, bombsQty, flagsCounter, seconds, bombsCounter, clickCounter);
 themeSwitcher();
 modal.buildModal();
+loadGame(isSave);
 
 function getRandom(min, max) {
   return Math.floor(Math.random() * (max - min) + min);
@@ -72,12 +77,15 @@ function updateFlags() {
   const bombsText = document.querySelector('.bombs-counter');
   flags.textContent = `${flagsCounter}`;
   bombsText.textContent = `${bombsCounter}`;
+  localStorage.setItem('flagsCounter', `${flagsCounter}`);
+  localStorage.setItem('bombsCounter', `${bombsCounter}`);
 }
 
 function startTimer() {
   const time = document.querySelector('.time-counter');
   seconds += 1;
   time.textContent = `${seconds} s`;
+  localStorage.setItem('seconds', `${seconds}`);
 }
 
 function endTimer() {
@@ -92,12 +100,15 @@ function timer(command) {
   if (command === 'start') {
     intervalID = setInterval(startTimer, 1000);
     clocks.classList.add('ico__time_active');
+    isTimer = true;
   } else if (command === 'stop') {
     clearInterval(intervalID);
     clocks.classList.remove('ico__time_active');
+    isTimer = false;
   } else if (command === 'restart') {
     clearInterval(intervalID);
     clocks.classList.remove('ico__time_active');
+    isTimer = false;
     endTimer();
   }
 }
@@ -108,8 +119,12 @@ function restartGame() {
   clickCounter = 0;
   isPlay = true;
   isStart = true;
+  isTimer = false;
+  fieldArr = [];
+  bombs = [];
   updateClicks();
   updateFlags();
+  timer('stop');
   timer('restart');
   const cards = document.querySelectorAll('.card');
   for (let i = 0; i < cards.length; i += 1) {
@@ -118,6 +133,13 @@ function restartGame() {
     cards[i].textContent = '';
     cards[i].classList = '';
     cards[i].setAttribute('class', `card card_${level}`);
+  }
+  if (level === 'easy') {
+    fieldSide = 10;
+  } else if (level === 'medium') {
+    fieldSide = 15;
+  } else if (level === 'hard') {
+    fieldSide = 25;
   }
 }
 
@@ -166,12 +188,14 @@ function checkWin(all, target) {
     playSound(lose);
     isPlay = false;
     timer('stop');
+    clear();
     modal.show('You lose!', 'Game over. Try again');
   }
   if (bombs.length === all ** 2 - empty) {
     playSound(win);
     isPlay = false;
     timer('stop');
+    clear();
     results.addItem('win', fieldArr.length, bombsQty, seconds, clickCounter);
     modal.show('You win!', `Hooray! You found all mines in ${seconds} seconds and ${clickCounter} moves!`);
   }
@@ -179,16 +203,22 @@ function checkWin(all, target) {
 
 const field = document.querySelector('.field');
 field.addEventListener('click', (e) => {
-  if (e.target.dataset.flag === 'true' || e.target.dataset.empty === 'true' || !isPlay) return;
+  if (e.target.dataset.flag === 'true' || e.target.dataset.empty === 'true' || !isPlay || e.target.classList.contains('field')) return;
   playSound(click);
   const point = e.target.dataset.cord;
+  console.log(point);
   const x = +point.split(',')[0];
   const y = +point.split(',')[1];
+  if (!isTimer) {
+    timer('start');
+  }
   if (isStart) {
+    console.log('isStart');
     bombs = createBombs(bombsQty, fieldSide, point);
     fieldArr = createField(fieldSide, bombs);
     isStart = false;
-    timer('start');
+    localStorage.setItem('fieldArr', `${JSON.stringify(fieldArr)}`);
+    localStorage.setItem('bombs', `${JSON.stringify(bombs)}`);
   }
   if (e.target.dataset.empty !== 'true') {
     if (bombs.includes(point)) {
@@ -204,12 +234,19 @@ field.addEventListener('click', (e) => {
   e.target.classList.add('card_opened');
   clickCounter += 1;
   updateClicks();
+  localStorage.setItem('isSave', 'true');
+  localStorage.setItem('field', `${field.innerHTML}`);
+  localStorage.setItem('clickCounter', `${clickCounter}`);
+  localStorage.setItem('level', `${level}`);
   checkWin(fieldArr.length, point);
 });
 
 field.addEventListener('contextmenu', (e) => {
   e.preventDefault();
   if (!isPlay) return;
+  if (isSave && !isTimer && e.target.dataset.empty !== 'true') {
+    timer('start');
+  }
   if (!isStart && e.target.dataset.empty !== 'true') {
     if (flagsCounter < bombsQty && e.target.dataset.flag !== 'true') {
       playSound(flag);
@@ -226,11 +263,13 @@ field.addEventListener('contextmenu', (e) => {
     }
   }
   updateFlags();
+  localStorage.setItem('field', `${field.innerHTML}`);
 });
 
 const restart = document.querySelector('.btn_restart');
 restart.addEventListener('click', () => {
   restartGame();
+  clear();
 });
 
 function changeLevel(newLevel) {
@@ -254,6 +293,8 @@ radioBtns.forEach((radio) => {
     if (e.target.value !== level) {
       changeLevel(e.target.value);
       restartGame();
+      clear();
+      localStorage.setItem('fieldSide', `${fieldSide}`);
     }
   });
 });
@@ -268,6 +309,7 @@ slider.addEventListener('input', (e) => {
 
 slider.addEventListener('change', () => {
   restartGame();
+  clear();
 });
 
 const btnSound = document.querySelector('.btn_sound');

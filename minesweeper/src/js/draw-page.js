@@ -1,7 +1,7 @@
 import Builder from './element-builder';
 import drawField from './draw-field';
 
-export default function drawPage(size, lvl, sound, bombs, flags, secs, bombsCounter) {
+export default function drawPage(size, lvl, sound, bombs, flags, secs, bombsCounter, clicks) {
   const body = document.querySelector('body');
   const field = document.createElement('div');
   field.setAttribute('class', 'field');
@@ -40,7 +40,7 @@ export default function drawPage(size, lvl, sound, bombs, flags, secs, bombsCoun
     name: 'bombsQty',
     min: '10',
     max: '99',
-    value: '10',
+    value: `${bombs}`,
     step: '1',
   }, settings).insert();
   new Builder('input', {
@@ -55,7 +55,7 @@ export default function drawPage(size, lvl, sound, bombs, flags, secs, bombsCoun
   const bottom = document.createElement('div');
   bottom.setAttribute('class', 'bottom');
   new Builder('span', { class: 'ico material-symbols-outlined' }, bottom, 'left_click').insert();
-  new Builder('span', { class: 'counter' }, bottom, '0').insert();
+  new Builder('span', { class: 'counter' }, bottom, `${clicks}`).insert();
   new Builder('span', { class: 'ico ico__time material-symbols-outlined' }, bottom, 'hourglass_empty').insert();
   new Builder('span', { class: 'time-counter' }, bottom, `${secs} s`).insert();
   new Builder('span', { class: 'ico material-symbols-outlined' }, bottom, 'flag').insert();
@@ -63,4 +63,6 @@ export default function drawPage(size, lvl, sound, bombs, flags, secs, bombsCoun
   new Builder('span', { class: 'ico material-symbols-outlined' }, bottom, 'explosion').insert();
   new Builder('span', { class: 'bombs-counter' }, bottom, `${bombsCounter}`).insert();
   body.append(bottom);
+  const slider = document.querySelector('.slider');
+  slider.style.backgroundSize = `${((bombs - slider.min) * 100) / (slider.max - slider.min)}% 100%`;
 }
