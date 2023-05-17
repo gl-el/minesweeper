@@ -206,14 +206,12 @@ field.addEventListener('click', (e) => {
   if (e.target.dataset.flag === 'true' || e.target.dataset.empty === 'true' || !isPlay || e.target.classList.contains('field')) return;
   playSound(click);
   const point = e.target.dataset.cord;
-  console.log(point);
   const x = +point.split(',')[0];
   const y = +point.split(',')[1];
   if (!isTimer) {
     timer('start');
   }
   if (isStart) {
-    console.log('isStart');
     bombs = createBombs(bombsQty, fieldSide, point);
     fieldArr = createField(fieldSide, bombs);
     isStart = false;
@@ -272,18 +270,31 @@ restart.addEventListener('click', () => {
   clear();
 });
 
+function updateSlider(target, qty) {
+  const slider = target;
+  slider.value = qty;
+  const bombsQtyText = document.querySelector('.bombs-qty');
+  slider.style.backgroundSize = `${((qty - slider.min) * 100) / (slider.max - slider.min)}% 100%`;
+  bombsQtyText.textContent = `Bombs quantity: ${bombsQty}`;
+}
+
 function changeLevel(newLevel) {
   const fieldUpd = document.querySelector('.field');
   if (newLevel === 'easy') {
     level = 'easy';
     fieldSide = 10;
+    bombsQty = 10;
   } else if (newLevel === 'medium') {
     level = 'medium';
     fieldSide = 15;
+    bombsQty = 25;
   } else if (newLevel === 'hard') {
     level = 'hard';
     fieldSide = 25;
+    bombsQty = 80;
   }
+  const slider = document.querySelector('.slider');
+  updateSlider(slider, bombsQty);
   fieldUpd.replaceChildren(...drawField(fieldSide, level));
 }
 
@@ -301,10 +312,8 @@ radioBtns.forEach((radio) => {
 
 const slider = document.querySelector('.slider');
 slider.addEventListener('input', (e) => {
-  const bombsQtyText = document.querySelector('.bombs-qty');
   bombsQty = e.target.value;
-  slider.style.backgroundSize = `${((bombsQty - e.target.min) * 100) / (e.target.max - e.target.min)}% 100%`;
-  bombsQtyText.textContent = `Bombs quantity: ${bombsQty}`;
+  updateSlider(slider, e.target.value);
 });
 
 slider.addEventListener('change', () => {
