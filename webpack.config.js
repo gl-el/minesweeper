@@ -6,7 +6,7 @@ const devMode = mode === 'development';
 const devtool = devMode ? 'source-map' : undefined;
 
 module.exports = {
-  mode,
+  mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
   target: 'web',
   entry: path.resolve(__dirname, 'minesweeper', 'src', 'index.js'),
   devtool,
@@ -47,8 +47,5 @@ module.exports = {
         type: 'asset/resource',
       },
     ],
-  },
-  optimization: {
-    minimize: false,
   },
 };
